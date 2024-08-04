@@ -12,6 +12,11 @@ class SubtaskSerializer(serializers.ModelSerializer):
         model = SubTaskItem
         fields = ['title', 'completed']
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'       
+
 class TaskItemSerializer(serializers.ModelSerializer):
     assigned_to = serializers.PrimaryKeyRelatedField(queryset=Contact.objects.all(), many=True)
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
@@ -31,27 +36,13 @@ class TaskItemSerializer(serializers.ModelSerializer):
         return task
     
     def update(self, instance, validated_data):
-        # Update the non-nested fields
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
         instance.due_date = validated_data.get('due_date', instance.due_date)
         instance.priority = validated_data.get('priority', instance.priority)
+        instance.progress = validated_data.get('progress', instance.progress)
         instance.category = validated_data.get('category', instance.category)
         instance.save()
-
-        # Update the assigned_to field
-        if 'assigned_to' in validated_data:
-            assigned_to_data = validated_data.pop('assigned_to')
-            instance.assigned_to.set(assigned_to_data)
-
-        # Update the subtasks field
-        if 'subtasks' in validated_data:
-            subtasks_data = validated_data.pop('subtasks')
-            # Clear existing subtasks
-            instance.subtasks.all().delete()
-            # Create new subtasks
-            for subtask_data in subtasks_data:
-                SubTaskItem.objects.create(parent_task=instance, **subtask_data)
 
         return instance
 

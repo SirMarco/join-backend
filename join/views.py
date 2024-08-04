@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework import viewsets
 
 from join.models import Contact, TaskItem
-from join.serializers import ContactSerializer, TaskItemSerializer
+from join.serializers import ContactSerializer, TaskItemSerializer, UserSerializer
 
     
 class LoginView(ObtainAuthToken):
@@ -36,6 +36,9 @@ class RegisterView(APIView):
         return Response({'token': token.key, 'user_id': user.pk, 'email': user.email, 'message': 'Benutzer erfolgreich registriert'}, status=status.HTTP_201_CREATED)    
     
 class TaskCreateView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request, format=None):
         serializer = TaskItemSerializer(data=request.data)
         if serializer.is_valid():
@@ -50,6 +53,9 @@ class TaskCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class TaskDetailView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id, format=None):
         task = get_object_or_404(TaskItem, id=id)
         serializer = TaskItemSerializer(task)
@@ -71,6 +77,11 @@ class TaskDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def delete(self, request, id, format=None):
+        task = get_object_or_404(TaskItem, id=id)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
 class UserContactsView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -79,5 +90,14 @@ class UserContactsView(APIView):
         user = request.user
         contacts = Contact.objects.filter(user=user)
         serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class UsersView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

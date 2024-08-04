@@ -4,3 +4,5 @@ db.sqlite3
 
 # DOC
 readme.txt
+backup.py
+serializers_backup.py
