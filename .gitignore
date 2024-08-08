@@ -1,8 +1,11 @@
 /env
 db.sqlite3
-
+/include
+/lib
+/Scripts
 
 # DOC
 readme.txt
 backup.py
 serializers_backup.py
+pyvenv.cfg
