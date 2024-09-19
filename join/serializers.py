@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Contact, TaskItem
+from .models import Contact, TaskItem, Category
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,3 +33,9 @@ class ContactSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         contact = Contact.objects.create(**validated_data)
         return contact
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
